@@ -1,0 +1,26 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    monitoring-key: middleware
+  name: demo-prometheus-rule
+  namespace: redhat-rhoam-observability
+spec:
+  groups:
+    - name: DemoPrometheusRuleGroup
+      rules:
+        - alert: DemoPrometheusRule
+          annotations:
+            description: >-
+              The addon-managed-api-service-parameters secret has been removed
+              from the redhat-rhoam-operator namespace, this secret should be
+              generated and managed by Hive
+            sop_url: >-
+              https://github.com/RHCloudServices/integreatly-help/blob/master/sops/rhoam/alerts/AddonManagedApiServiceParameters.asciidoc
+          expr: >-
+            absent(kube_secret_info{namespace='redhat-rhoam-operator',secret='addon-managed-api-service-parameters'}
+            == 1)
+          for: 5m
+          labels:
+            product: rhoam
+            severity: warning
